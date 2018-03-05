@@ -1,5 +1,13 @@
-import React, { Component } from 'react';
-import { Route, Redirect } from 'react-router-dom'
+/**
+ * create by yangran on 2018/3/1
+ */
+
+import React, { Component } from 'react'
+import { Route, Switch } from 'react-router-dom'
+
+import Login from './container/login/login'
+import AuthRoute from './component/authroute/authroute'
+import Dashboard from './component/dashboard/dashboard'
 
 class App extends Component {
   constructor(props) {
@@ -19,10 +27,15 @@ class App extends Component {
       ? <h2>出错了</h2>
       : (
           <div className="App">
-            <Route></Route>
+            <AuthRoute />
+            <Switch>
+              <Route path='/login' component={Login} />
+              {/*<Route path='/dashboard' component={Dashboard} />*/}
+              <Route component={Dashboard} />
+            </Switch>
           </div>
-        );
+        )
   }
 }
 
-export default App;
+export default App

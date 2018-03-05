@@ -1,15 +1,34 @@
+/**
+ * create by yangran on 2018/3/1
+ */
+
 import api from '../common/api/service'
+import { ERR_OK } from '../common/api/config'
 // import { Dispatch } from 'redux'
 
-const GET_USER_INFO = 'GET_USER_INFO'
+const LOGIN = 'LOGIN'
+const LOGOUT = 'LOGOUT'
+const GET_USER_SESSION = 'GET_USER_SESSION'
 // const ERROR_MSG = 'ERROR_MSG'
 
-const initState = {}
+const initState = {
+  redirectTo: '',
+  id: '',
+  username: '',
+  email: '',
+  phone: '',
+  role: ''
+}
 
-// ⚠️reducer⚠️
 export function user(state = initState, action) {
   switch (action.type) {
-    case GET_USER_INFO: {
+    case LOGIN: {
+      return { ...state, ...action.payload }
+    }
+    case LOGOUT: {
+      return {}
+    }
+    case GET_USER_SESSION: {
       return { ...state, ...action.payload }
     }
     default: {
@@ -23,15 +42,26 @@ export function user(state = initState, action) {
 //   return { type: GET_USER_INFO, payload: userInfo }
 // }
 
-// ⚠️handle⚠️
-export function getUserInfo(state) {
-  const { userToken } = state
-  if (!userToken) return console.log('userToken is empty')
+export function getUserSession(userInfo) {
+  return { type: GET_USER_SESSION, payload: userInfo }
+}
+
+export function login(data) {
   return (dispatch) => {
-    api.post(`/user/userToken/${userToken}`)
+    api.post(`/manage/user/login`, data)
       .then(res => {
-        if (res.code === 0) dispatch({ type: GET_USER_INFO, payload: res.data.user })
-        else alert('获取用户信息出错')
+        if (res.status === ERR_OK) dispatch({ type: LOGIN, payload: res.data })
+        else alert(res.msg)
+      })
+  }
+}
+
+export function logout() {
+  return (dispatch) => {
+    api.get(`/user/logout`)
+      .then(res => {
+        if (res.status === ERR_OK) dispatch({ type: LOGOUT })
+        else alert(res.msg)
       })
   }
 }
