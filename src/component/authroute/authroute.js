@@ -2,13 +2,13 @@ import React from 'react'
 import api from '../../common/api/service'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { getUserSession } from '../../redux/user.redux'
+import { setUserSession } from '../../redux/user.redux'
 import { ERR_OK } from '../../common/api/config'
 
 @withRouter // 可以看到当前this.props.history 的信息
 @connect(
   null,
-  { getUserSession }
+  { setUserSession }
 )
 class AuthRoute extends React.Component {
   componentDidMount() {
@@ -20,7 +20,7 @@ class AuthRoute extends React.Component {
       .then(res => {
         if (res.status === ERR_OK) {
           // 有登陆信息
-          const data = this.props.getUserSession(res.data)
+          this.props.setUserSession(res.data)
         } else {
           this.props.history.push('/login')
         }

@@ -42,7 +42,7 @@ export function user(state = initState, action) {
 //   return { type: GET_USER_INFO, payload: userInfo }
 // }
 
-export function getUserSession(userInfo) {
+export function setUserSession(userInfo) {
   return { type: GET_USER_SESSION, payload: userInfo }
 }
 
