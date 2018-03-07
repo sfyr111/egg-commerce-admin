@@ -3,18 +3,12 @@
  */
 
 import React from 'react'
-import Index from '../index/index'
-import Product from '../product/product'
-import Categories from '../categories/categories'
-import CategoriesList from '../categories-list/categories-list'
-import Order from '../order/order'
-import Users from '../users/users'
 
 import { router } from '../../router/router'
 import { connect } from 'react-redux'
 import { logout } from '../../redux/user.redux'
-import { Layout, Menu, Icon } from 'antd';
-import { Route, Redirect, Switch } from 'react-router-dom'
+import { Layout, Menu, Icon, Breadcrumb } from 'antd';
+import { Route, Redirect, Switch, Link } from 'react-router-dom'
 
 import './dashboard.styl'
 
@@ -39,8 +33,9 @@ const navList = [
     icon: 'appstore-o',
     title: '分类管理',
     sub: [
-      { path: '/categories/1level', title: '一级分类', },
-      { path: '/categories/2level', title: '二级分类', },
+      // { path: '/categories/1level', title: '一级分类', },
+      // { path: '/categories/2level', title: '二级分类', },
+      { path: '/categories/list', title: '分类列表', },
       { path: '/categories/add', title: '添加分类', },
     ]
   },
@@ -71,10 +66,12 @@ class Dashboard extends React.Component {
     super()
     this.state = {
       collapsed: false,
-      openKeys: null
+      openKeys: null,
+      breadcrumbItems: [router[0]]
     }
   }
   componentDidMount() {
+    this.setBreadcrumnb(this.props.location.pathname)
     this.setMenuOpen(this.props)
   }
 
@@ -94,15 +91,28 @@ class Dashboard extends React.Component {
       collapsed: !this.state.collapsed,
     })
   }
+
   openMenu = (data) => {
     this.setState({
       openKeys: data
     })
   }
 
+  setBreadcrumnb = pathname => {
+    if (pathname === '/index') this.setState({ breadcrumbItems: [ this.state.breadcrumbItems[0] ] })
+    else {
+      const routeItem = router.filter(item => item.path === pathname)
+      this.setState({ breadcrumbItems: [ this.state.breadcrumbItems[0], ...routeItem ] })
+    }
+  }
+
+  clickMenuItem = ({ key }) => {
+    this.props.history.push(`${key}`)
+    this.setBreadcrumnb(key)
+  }
+
   render() {
     const { pathname } = this.props.location
-    const page = navList.find(item => item.path === pathname)
     return (
       <div id="dashboard">
         <Layout>
@@ -113,7 +123,7 @@ class Dashboard extends React.Component {
           >
             <div className="logo" />
             <Menu
-              onClick={({ key }) => this.props.history.push(`${key}`)}
+              onClick={this.clickMenuItem}
               onOpenChange={this.openMenu}
               theme="dark"
               mode="inline"
@@ -122,7 +132,7 @@ class Dashboard extends React.Component {
               openKeys={this.state.openKeys}
             >
               {navList.map(item => (
-                item.path === '/index' ? <Menu.Item key={item.path}><Icon type={item.icon} />{item.title}</Menu.Item>
+                item.path === '/index' ? <Menu.Item key={item.path}><Icon type={item.icon} /><span>{item.title}</span></Menu.Item>
                 : <Menu.SubMenu key={item.path} title={<span><Icon type={item.icon} /><span>{item.title}</span></span>}>
                   {!item.hasOwnProperty('sub') ? null : item.sub.map(subItem => <Menu.Item key={subItem.path}>{subItem.title}</Menu.Item>)}
                 </Menu.SubMenu>
@@ -136,12 +146,15 @@ class Dashboard extends React.Component {
                 type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
                 onClick={this.toggle}
               />
-              <span className="title">{page ? page.title : ''}</span>
+              <span>管理员: {this.props.username}</span>
               <span onClick={this.props.logout} style={{ marginRight: 50, float: 'right', cursor: 'pointer' }}>登出</span>
             </Header>
-            <Content style={{ margin: '24px 16px', padding: 24, background: '#f0f2f5', minHeight: 280 }}>
+            <Content style={{ margin: '24px 16px', padding: 0, background: '#f0f2f5', height: '100%' }}>
+              <Breadcrumb>
+                {this.state.breadcrumbItems.map(item => (<Breadcrumb.Item key={item.path}>{item.title}</Breadcrumb.Item>))}
+              </Breadcrumb>
               <Switch>
-                {router.map(item => <Route exact key={item.path} path={item.path} componet={item.component} />)}
+                {router.map(item => <Route exact key={item.path} path={item.path} component={item.component} />)}
                 <Route render={() => <Redirect to='/404' />} />
               </Switch>
             </Content>

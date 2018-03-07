@@ -4,6 +4,7 @@
 
 import api from '../common/api/service'
 import { ERR_OK } from '../common/api/config'
+import { message } from 'antd'
 // import { Dispatch } from 'redux'
 
 const GET_CATEGORIES = 'GET_CATEGORIES'
@@ -12,7 +13,9 @@ const SET_CURRENT = 'SET_CURRENT'
 
 const initState = {
   list: [],
-  current: {}
+  current: {
+    parentId: 0
+  }
 }
 
 export function categories(state = initState, action) {
@@ -33,13 +36,37 @@ export function setCurrentCategories(item) {
   return { type: SET_CURRENT, payload: item }
 }
 
-export function getCategories(id) {
-  return (dispatch) => {
-    api.get(`/manage/category/parentId/${id}`)
+function getCategoriesReducer(data) {
+  return { type: GET_CATEGORIES, payload: data}
+}
+
+export function getCategories(parentId = 0) {
+  return (dispatch, getState) => {
+    // const { parentId } = getState().categories.current
+    api.get(`/manage/category/parentId/${parentId}`)
       .then(res => {
-        if (res.status === ERR_OK) dispatch({ type: GET_CATEGORIES, payload: res.data })
-        else alert(res.msg)
+        if (res.status === ERR_OK) dispatch(getCategoriesReducer(res.data))
+        else message.error(res.msg)
       })
   }
 }
 
+export function updataCategorie(id, name) {
+  return (dispatch) => {
+    api.put('/manage/category/updateCategoryName', { id, name })
+      .then(res => {
+        if (res.status === ERR_OK) dispatch(getCategoriesReducer(res.data))
+        else message.error(res.msg)
+      })
+  }
+}
+
+export function addCategorie(id, name) {
+  return () => {
+    api.post('/manage/category/addCategory', { name, parentId: id })
+      .then(res => {
+        if (res.status === ERR_OK) message.success(res.msg)
+        else message.error(res.msg)
+      })
+  }
+}

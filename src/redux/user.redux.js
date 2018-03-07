@@ -4,6 +4,7 @@
 
 import api from '../common/api/service'
 import { ERR_OK } from '../common/api/config'
+import { message } from 'antd'
 // import { Dispatch } from 'redux'
 
 const LOGIN = 'LOGIN'
@@ -51,7 +52,7 @@ export function login(data) {
     api.post(`/manage/user/login`, data)
       .then(res => {
         if (res.status === ERR_OK) dispatch({ type: LOGIN, payload: res.data })
-        else alert(res.msg)
+        else message.error(res.msg)
       })
   }
 }
@@ -61,7 +62,7 @@ export function logout() {
     api.get(`/user/logout`)
       .then(res => {
         if (res.status === ERR_OK) dispatch({ type: LOGOUT })
-        else alert(res.msg)
+        else message.error(res.msg)
       })
   }
 }
